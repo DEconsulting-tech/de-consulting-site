@@ -164,6 +164,66 @@
     .social-links svg { width: 22px; height: 22px; fill: currentColor; }
     .footer-note { margin-top: 12px; font-size: 12px; color: var(--rule); }
 
+    /* — Modal Overlay — */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0; z-index: 200;
+      background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      overflow-y: auto; padding: 40px 16px;
+    }
+    .modal-overlay.open { display: flex; justify-content: center; align-items: flex-start; }
+    .modal {
+      background: var(--card); border-radius: 16px; width: 100%; max-width: 580px;
+      padding: 40px; position: relative; margin: auto;
+      box-shadow: 0 24px 48px rgba(0,0,0,0.12);
+    }
+    .modal-close {
+      position: absolute; top: 16px; right: 20px;
+      background: none; border: none; font-size: 24px; color: var(--muted);
+      cursor: pointer; line-height: 1; padding: 4px;
+    }
+    .modal-close:hover { color: var(--ink); }
+    .modal h2 {
+      font-family: "Playfair Display", Georgia, serif;
+      font-weight: 600; font-size: 24px; margin-bottom: 4px;
+    }
+    .modal .modal-sub { color: var(--muted); font-size: 14px; margin-bottom: 28px; }
+
+    /* — Form — */
+    .form-row { margin-bottom: 18px; }
+    .form-row-double { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 18px; }
+    .form-row label, .form-row-double label {
+      display: block; font-size: 13px; font-weight: 600;
+      color: var(--ink); margin-bottom: 5px;
+    }
+    .form-row input, .form-row textarea, .form-row select,
+    .form-row-double input, .form-row-double select {
+      width: 100%; padding: 10px 14px; border: 1px solid var(--rule);
+      border-radius: 8px; font-size: 15px; font-family: inherit;
+      color: var(--ink); background: var(--bg);
+      transition: border-color 0.2s;
+    }
+    .form-row input:focus, .form-row textarea:focus, .form-row select:focus,
+    .form-row-double input:focus, .form-row-double select:focus {
+      outline: none; border-color: var(--accent);
+    }
+    .form-row textarea { resize: vertical; min-height: 80px; }
+    .form-row select, .form-row-double select { cursor: pointer; }
+    .form-row .optional { font-weight: 400; color: var(--muted); }
+
+    .form-submit {
+      display: block; width: 100%; background: var(--accent); color: #fff;
+      padding: 14px; border: none; border-radius: 8px; font-weight: 600;
+      font-size: 16px; font-family: inherit; cursor: pointer;
+      transition: background 0.2s; margin-top: 24px;
+    }
+    .form-submit:hover { background: #374151; }
+    .form-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .form-msg { text-align: center; margin-top: 12px; font-size: 14px; }
+    .form-msg.error { color: #dc2626; }
+    .form-msg.success { color: #16a34a; }
+
     /* — Responsive — */
     @media (max-width: 860px) {
       .nav-links a:not(.nav-cta) { display: none; }
@@ -175,6 +235,8 @@
       .step-num { left: 20px; top: 22px; font-size: 32px; }
       .case-study { padding: 28px; }
       .section { padding: 56px 0; }
+      .modal { padding: 28px 20px; }
+      .form-row-double { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -191,7 +253,7 @@
         <a href="#who">Who We Help</a>
         <a href="#services">How We Work</a>
         <a href="#results">Results</a>
-        <a href="mailto:rob@deconsulting.tech,Tars@deconsulting.tech?subject=Discovery%20Session%20Inquiry" class="nav-cta">Book a Consultation</a>
+        <a href="#" class="nav-cta" onclick="openModal();return false">Book a Consultation</a>
       </div>
     </div>
   </nav>
@@ -203,7 +265,7 @@
       <h1>Your operation has a process problem. Technology is just where you feel it.</h1>
       <p class="hero-sub">We work with trades businesses to find where the operation bleeds time and money&mdash;then fix it. Starting with how the work actually runs, not what software to buy.</p>
       <div class="hero-cta-group">
-        <a href="mailto:rob@deconsulting.tech,Tars@deconsulting.tech?subject=Discovery%20Session%20Inquiry" class="cta-btn">Schedule a Discovery Session</a>
+        <a href="#" class="cta-btn" onclick="openModal();return false">Schedule a Discovery Session</a>
         <p class="hero-price">$100/hr &mdash; most sessions run 2&ndash;3 hours</p>
       </div>
     </section>
@@ -314,7 +376,7 @@
 
         <div class="closing-cta">
           <p>Ready to see where your operation is losing time?</p>
-          <a href="mailto:rob@deconsulting.tech,Tars@deconsulting.tech?subject=Discovery%20Session%20Inquiry" class="cta-btn">Book Your Discovery Session</a>
+          <a href="#" class="cta-btn" onclick="openModal();return false">Book Your Discovery Session</a>
           <div class="alt-contact">Or connect with us on <a href="https://www.linkedin.com/company/decisive-engagements/" target="_blank" rel="noopener">LinkedIn</a></div>
         </div>
       </div>
@@ -338,8 +400,182 @@
     <div class="footer-note">No personal data collected on this site.</div>
   </footer>
 
+  <!-- Inquiry Modal -->
+  <div class="modal-overlay" id="inquiryModal">
+    <div class="modal">
+      <button class="modal-close" onclick="closeModal()" aria-label="Close">&times;</button>
+      <h2>Schedule a Discovery Session</h2>
+      <p class="modal-sub">$100/hr &mdash; most sessions run 2&ndash;3 hours. Tell us about your operation and we'll reach out to set up a time.</p>
+
+      <form id="inquiryForm" novalidate>
+        <div class="form-row-double">
+          <div>
+            <label for="f-name">Full Name *</label>
+            <input type="text" id="f-name" name="name" required autocomplete="name" />
+          </div>
+          <div>
+            <label for="f-email">Email *</label>
+            <input type="email" id="f-email" name="email" required autocomplete="email" />
+          </div>
+        </div>
+
+        <div class="form-row-double">
+          <div>
+            <label for="f-phone">Phone <span class="optional">(optional)</span></label>
+            <input type="tel" id="f-phone" name="phone" autocomplete="tel" />
+          </div>
+          <div>
+            <label for="f-title">Job Title <span class="optional">(optional)</span></label>
+            <input type="text" id="f-title" name="title" placeholder="e.g. Project Manager, Owner" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <label for="f-company">Company Name *</label>
+          <input type="text" id="f-company" name="company" required autocomplete="organization" />
+        </div>
+
+        <div class="form-row-double">
+          <div>
+            <label for="f-industry">Industry</label>
+            <select id="f-industry" name="industry">
+              <option value="">Select...</option>
+              <option>Construction</option>
+              <option>Concrete</option>
+              <option>HVAC</option>
+              <option>Plumbing</option>
+              <option>Electrical</option>
+              <option>Roofing</option>
+              <option>Landscaping</option>
+              <option>Property Management</option>
+              <option>Fleet Operations</option>
+              <option>Field Services</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div>
+            <label for="f-revenue">Annual Revenue</label>
+            <select id="f-revenue" name="revenue">
+              <option value="">Select...</option>
+              <option>Under $1M</option>
+              <option>$1M &ndash; $5M</option>
+              <option>$5M &ndash; $10M</option>
+              <option>$10M &ndash; $20M</option>
+              <option>$20M+</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <label for="f-employees">Number of Employees</label>
+          <select id="f-employees" name="employees">
+            <option value="">Select...</option>
+            <option>1 &ndash; 10</option>
+            <option>11 &ndash; 25</option>
+            <option>26 &ndash; 50</option>
+            <option>51 &ndash; 100</option>
+            <option>101 &ndash; 200</option>
+            <option>200+</option>
+          </select>
+        </div>
+
+        <div class="form-row">
+          <label for="f-desc">What's the biggest issue in your operation right now?</label>
+          <textarea id="f-desc" name="description" rows="3" placeholder="Describe what's not working, where time is being lost, or what you'd like to improve."></textarea>
+        </div>
+
+        <div class="form-row-double">
+          <div>
+            <label for="f-platform">Meeting Platform</label>
+            <select id="f-platform" name="platform">
+              <option value="">Select...</option>
+              <option>Microsoft Teams</option>
+              <option>Zoom</option>
+              <option>Either works</option>
+            </select>
+          </div>
+          <div>
+            <label for="f-avail">Best Days / Times</label>
+            <input type="text" id="f-avail" name="availability" placeholder="e.g. Tues/Thurs after 2 PM" />
+          </div>
+        </div>
+
+        <button type="submit" class="form-submit" id="submitBtn">Submit Inquiry</button>
+        <div class="form-msg" id="formMsg"></div>
+      </form>
+    </div>
+  </div>
+
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
+
+    // Modal
+    function openModal() {
+      document.getElementById('inquiryModal').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeModal() {
+      document.getElementById('inquiryModal').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+    document.getElementById('inquiryModal').addEventListener('click', function(e) {
+      if (e.target === this) closeModal();
+    });
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') closeModal();
+    });
+
+    // Form submit
+    document.getElementById('inquiryForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      var btn = document.getElementById('submitBtn');
+      var msg = document.getElementById('formMsg');
+      msg.textContent = '';
+      msg.className = 'form-msg';
+
+      var data = {
+        name: document.getElementById('f-name').value.trim(),
+        email: document.getElementById('f-email').value.trim(),
+        phone: document.getElementById('f-phone').value.trim(),
+        title: document.getElementById('f-title').value.trim(),
+        company: document.getElementById('f-company').value.trim(),
+        industry: document.getElementById('f-industry').value,
+        revenue: document.getElementById('f-revenue').value,
+        employees: document.getElementById('f-employees').value,
+        description: document.getElementById('f-desc').value.trim(),
+        platform: document.getElementById('f-platform').value,
+        availability: document.getElementById('f-avail').value.trim()
+      };
+
+      if (!data.name || !data.email || !data.company) {
+        msg.textContent = 'Please fill in name, email, and company.';
+        msg.className = 'form-msg error';
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Sending...';
+
+      try {
+        var res = await fetch('/api/inquiry', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        var result = await res.json();
+        if (!res.ok) throw new Error(result.error || 'Something went wrong.');
+        msg.textContent = "Thank you! We'll be in touch within one business day.";
+        msg.className = 'form-msg success';
+        document.getElementById('inquiryForm').reset();
+        setTimeout(closeModal, 3000);
+      } catch (err) {
+        msg.textContent = err.message;
+        msg.className = 'form-msg error';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Submit Inquiry';
+      }
+    });
   </script>
 </body>
 </html>
