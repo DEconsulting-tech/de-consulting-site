@@ -35,7 +35,7 @@ app.post("/api/inquiry", async (req, res) => {
     return res.status(429).json({ error: "Too many submissions. Please try again later." });
   }
 
-  const { name, email, phone, title, company, industry, revenue, employees, description, availability, platform } = req.body;
+  const { name, email, phone, title, company, industry, revenue, employees, description, availability } = req.body;
 
   if (!name || !email || !company) {
     return res.status(400).json({ error: "Name, email, and company are required." });
@@ -56,7 +56,6 @@ app.post("/api/inquiry", async (req, res) => {
     description || "(none provided)",
     "",
     "--- Scheduling ---",
-    platform ? `Preferred Platform: ${platform}` : null,
     availability ? `Availability: ${availability}` : null,
   ]
     .filter((l) => l !== null)

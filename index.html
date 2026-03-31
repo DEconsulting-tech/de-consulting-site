@@ -224,6 +224,23 @@
     .form-msg.error { color: #dc2626; }
     .form-msg.success { color: #16a34a; }
 
+    /* — Confirmation View — */
+    .confirm-view { text-align: center; padding: 32px 0 8px; }
+    .confirm-view h2 {
+      font-family: "Playfair Display", Georgia, serif;
+      font-weight: 600; font-size: 26px; margin-bottom: 16px;
+    }
+    .confirm-view p { color: var(--muted); line-height: 1.7; margin-bottom: 12px; font-size: 16px; }
+    .confirm-view .confirm-note { font-size: 13px; color: var(--rule); margin-top: 20px; }
+    .confirm-view .confirm-note a { color: var(--muted); }
+    .btn-outline {
+      display: inline-block; margin-top: 24px; padding: 12px 32px;
+      border: 1px solid var(--rule); border-radius: 8px; background: none;
+      color: var(--ink); font-size: 15px; font-weight: 600; font-family: inherit;
+      cursor: pointer; transition: border-color 0.2s;
+    }
+    .btn-outline:hover { border-color: var(--accent); }
+
     /* — Responsive — */
     @media (max-width: 860px) {
       .nav-links a:not(.nav-cta) { display: none; }
@@ -484,25 +501,22 @@
           <textarea id="f-desc" name="description" rows="3" placeholder="Describe what's not working, where time is being lost, or what you'd like to improve."></textarea>
         </div>
 
-        <div class="form-row-double">
-          <div>
-            <label for="f-platform">Meeting Platform</label>
-            <select id="f-platform" name="platform">
-              <option value="">Select...</option>
-              <option>Microsoft Teams</option>
-              <option>Zoom</option>
-              <option>Either works</option>
-            </select>
-          </div>
-          <div>
-            <label for="f-avail">Best Days / Times</label>
-            <input type="text" id="f-avail" name="availability" placeholder="e.g. Tues/Thurs after 2 PM" />
-          </div>
+        <div class="form-row">
+          <label for="f-avail">Best Days / Times to Meet</label>
+          <input type="text" id="f-avail" name="availability" placeholder="e.g. Tues/Thurs after 2 PM" />
         </div>
 
         <button type="submit" class="form-submit" id="submitBtn">Submit Inquiry</button>
         <div class="form-msg" id="formMsg"></div>
       </form>
+
+      <div class="confirm-view" id="confirmView" style="display:none">
+        <img src="de_logo_-_transparent.png" alt="DE" style="width:64px;height:auto;margin-bottom:24px;opacity:0.8" />
+        <h2>We Got Your Inquiry</h2>
+        <p id="confirmText"></p>
+        <p class="confirm-note">If you don't hear from us, check your spam folder or reach out directly at <a href="mailto:rob@deconsulting.tech">rob@deconsulting.tech</a></p>
+        <button class="btn-outline" onclick="closeModal()">Close</button>
+      </div>
     </div>
   </div>
 
@@ -511,6 +525,8 @@
 
     // Modal
     function openModal() {
+      document.getElementById('inquiryForm').style.display = '';
+      document.getElementById('confirmView').style.display = 'none';
       document.getElementById('inquiryModal').classList.add('open');
       document.body.style.overflow = 'hidden';
     }
@@ -543,7 +559,6 @@
         revenue: document.getElementById('f-revenue').value,
         employees: document.getElementById('f-employees').value,
         description: document.getElementById('f-desc').value.trim(),
-        platform: document.getElementById('f-platform').value,
         availability: document.getElementById('f-avail').value.trim()
       };
 
@@ -564,10 +579,11 @@
         });
         var result = await res.json();
         if (!res.ok) throw new Error(result.error || 'Something went wrong.');
-        msg.textContent = "Thank you! We'll be in touch within one business day.";
-        msg.className = 'form-msg success';
+        document.getElementById('confirmText').innerHTML =
+          'Thank you, <strong>' + data.name.split(' ')[0] + '</strong>. We\u2019ll reach out to you at <strong>' + data.email + '</strong> within one business day to schedule your discovery session.';
+        document.getElementById('inquiryForm').style.display = 'none';
+        document.getElementById('confirmView').style.display = '';
         document.getElementById('inquiryForm').reset();
-        setTimeout(closeModal, 3000);
       } catch (err) {
         msg.textContent = err.message;
         msg.className = 'form-msg error';
